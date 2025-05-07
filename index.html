@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Quiz Application</title>
+  <style>
+    body {
+      background-image: url('b.jpg');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      font-family: Arial, sans-serif;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+      padding: 0 10px; /* Prevents overflow on mobile */
+      transition: background 0.1s ease;
+    }
+
+    .quiz-container {
+      width: 100%;
+      max-width: 500px;
+      background-color: rgba(250, 242, 242, 0.9);
+      border-radius: 10px;
+      padding: 20px;
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+      text-align: center;
+    }
+
+    h1 {
+      margin-top: 0;
+      font-size: 6vw;
+    }
+
+    #question-text {
+      font-size: 4.5vw;
+      margin-bottom: 10px;
+    }
+
+    #answer-buttons {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+    }
+
+    button {
+      height: 40px;
+      font-size: 4vw;
+      background-color: #abaceb;
+      border: none;
+      border-radius: 5px;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+
+    button:hover {
+      background-color: #f1f0f0;
+    }
+
+    #controls-container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 15px;
+      flex-wrap: wrap;
+    }
+
+    #timer-container {
+      font-size: 3.5vw;
+      margin-top: 10px;
+    }
+
+    @media (min-width: 768px) {
+      h1 {
+        font-size: 28px;
+      }
+
+      #question-text {
+        font-size: 18px;
+      }
+
+      button {
+        font-size: 16px;
+        height: 45px;
+      }
+
+      #timer-container {
+        font-size: 14px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="quiz-container">
+    <h1>Quiz App</h1>
+
+    <div id="question-container">
+      <p id="question-text"></p>
+      <div id="answer-buttons"></div>
+    </div>
+
+    <div id="controls-container">
+      <button id="start-button">Start Quiz</button>
+      <div id="timer-container">
+        <span id="timer-text">Time Left: <span id="timer">0</span></span>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const quizQuestions = [
+      {
+        question: "Which device operates at the network layer of the OSI model?",
+        options: ["Switch", "Router", "Hub", "Repeater"],
+        correctAnswer: "Router"
+      },
+      {
+        question: "Which SQL command is used to remove a table from a database?",
+        options: ["REMOVE TABLE", "DELETE TABLE", "DROP TABLE", "ERASE TABLE"],
+        correctAnswer: "DROP TABLE"
+      },
+      {
+        question: "Which HTML tag is used to create a hyperlink?",
+        options: ["<a>", "<href>", "<link>", "<hyper>"],
+        correctAnswer: "<a>"
+      },
+      {
+        question: "Which algorithm is used for shortest path in graphs?",
+        options: ["Prim's Algorithm", "Dijkstra's Algorithm", "Kruskal's Algorithm", "Bellman-Ford Algorithm"],
+        correctAnswer: "Dijkstra's Algorithm"
+      },
+      {
+        question: "Which interaction is responsible for fusion in the Sun?",
+        options: ["Electromagnetic", "Weak Nuclear", "Strong Nuclear", "Gravitational"],
+        correctAnswer: "Strong Nuclear"
+      },
+      {
+        question: "Who was the first Nobel Prize winner in India?",
+        options: ["Mother Teresa", "C.V Raman", "Abhijit Banerjee", "Rabindranath Tagore"],
+        correctAnswer: "Rabindranath Tagore"
+      },
+      {
+        question: "Which continent is known as the 'Dark Continent'?",
+        options: ["Africa", "Australia", "Europe", "Asia"],
+        correctAnswer: "Africa"
+      },
+      {
+        question: "Who invented electricity?",
+        options: ["Peter Henlein", "Guglielmo Marconi", "Wilhelm Roentgen", "Benjamin Franklin"],
+        correctAnswer: "Benjamin Franklin"
+      },
+      {
+        question: "Time complexity of binary search in worst case?",
+        options: ["O(n)", "O(log n)", "O(n log n)", "O(1)"],
+        correctAnswer: "O(log n)"
+      },
+      {
+        question: "Flowchart loop with Yes back and No exit is a?",
+        options: ["for loop", "do-while loop", "infinite loop", "while loop"],
+        correctAnswer: "while loop"
+      }
+    ];
+
+    let currentQuestionIndex = 0;
+    let score = 0;
+    let timeLeft = 30;
+    let timerInterval;
+
+    function startQuiz() {
+      document.getElementById("start-button").style.display = "none";
+      displayQuestion();
+      startTimer();
+    }
+
+    function displayQuestion() {
+      const currentQuestion = quizQuestions[currentQuestionIndex];
+      const questionText = document.getElementById("question-text");
+      const answerButtons = document.getElementById("answer-buttons");
+
+      questionText.innerHTML = currentQuestion.question;
+      answerButtons.innerHTML = "";
+
+      currentQuestion.options.forEach(option => {
+        const button = document.createElement("button");
+        button.innerText = option;
+        button.classList.add("answer-button");
+        button.addEventListener("click", () => checkAnswer(option));
+        answerButtons.appendChild(button);
+      });
+    }
+
+    function checkAnswer(selectedOption) {
+      const currentQuestion = quizQuestions[currentQuestionIndex];
+      if (selectedOption === currentQuestion.correctAnswer) {
+        score++;
+      }
+
+      currentQuestionIndex++;
+
+      if (currentQuestionIndex < quizQuestions.length) {
+        displayQuestion();
+      } else {
+        endQuiz();
+      }
+    }
+
+    function startTimer() {
+      document.getElementById("timer").textContent = timeLeft;
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        document.getElementById("timer").textContent = timeLeft;
+        if (timeLeft <= 0) {
+          endQuiz();
+        }
+      }, 1000);
+    }
+
+    function endQuiz() {
+      clearInterval(timerInterval);
+      const scorePercentage = (score / quizQuestions.length) * 100;
+      document.getElementById("question-container").innerHTML = `
+        <h2>Quiz Completed!</h2>
+        <p>Your Score: ${score} out of ${quizQuestions.length}</p>
+        <p>Score Percentage: ${scorePercentage.toFixed(2)}%</p>
+      `;
+    }
+
+    document.getElementById("start-button").addEventListener("click", startQuiz);
+  </script>
+</body>
+</html>
